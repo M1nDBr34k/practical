@@ -1,0 +1,61 @@
+from django.contrib.auth.models import User
+
+
+
+
+User.objects.create_user(username="Kirito", email="Kirito@gmail.com", password="password123")
+User.objects.create_user(username="Asuna", email="Asuna@gmail.com", password="password123")
+User.objects.create_user(username="Tzuyu", email="Tzuyu@gmail.com", password="password123")
+User.objects.create_user(username="Momo", email="Momo@gmail.com", password="password123")
+User.objects.create_user(username="Itzy5", email="Itzy@gmail.com", password="password123")
+
+
+from Task.models import Car, Rental, Location, User
+
+car1 = Car.objects.create(title="Compact Car", brand="Toyota", model="Corolla", year=2021, owner=User.objects.get(username="Kirito"), price_per_day=50.00, max_passengers=4)
+car2 = Car.objects.create(title="Luxury SUV", brand="Mercedes", model="GLE", year=2022, owner=User.objects.get(username="Asuna"), price_per_day=150.00, max_passengers=5)
+
+location1 = Location.objects.create(name="Downtown Location", car=car1, address="123 Downtown Street")
+location2 = Location.objects.create(name="Airport Location", car=car2, address="Airport Road")
+location3 = Location.objects.create(name="City Center", car=car1, address="456 City Center Avenue")
+
+Rental.objects.create(car=car1, renter=User.objects.get(username="Kirito"), start_date="2025-02-10", end_date="2025-02-15", total_price=250.00)
+Rental.objects.create(car=car1, renter=User.objects.get(username="Asuna"), start_date="2025-03-01", end_date="2025-03-05", total_price=200.00)
+
+
+for i in range(6):
+    Rental.objects.create(
+        car=car2,
+        renter=User.objects.get(username="Tzuyu"),
+        start_date=f"2025-02-{i+10}",
+        end_date=f"2025-02-{i+12}",
+        total_price=300.00
+    )
+
+# Failed bookings (assume payment_status field)
+for i in range(2):
+    Rental.objects.create(
+        car=car2,
+        renter=User.objects.get(username="Momo"),
+        start_date=f"2025-04-{i+1}",
+        end_date=f"2025-04-{i+3}",
+        total_price=400.00,
+    )
+
+
+successful_bookings = Rental.objects.filter(payment_status=True)
+for booking in successful_bookings:
+    print(booking)
+
+failed_bookings = Rental.objects.filter(payment_status=False)
+for booking in failed_bookings:
+    print(booking)
+
+from django.db.models import Avg
+
+average_sales = Rental.objects.filter(payment_status=True).aggregate(Avg('total_price'))['total_price__avg']
+print(f"Average Sales: ${average_sales}")
+
+
+
+
